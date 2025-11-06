@@ -87,7 +87,12 @@ export default function PhishShield() {
           </div>
 
           {result && (
-            <div className="mt-6 p-5 rounded-xl shadow-inner" style={{ background: "linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.35))" }}>
+            <div
+              className="mt-6 p-5 rounded-xl shadow-inner"
+              style={{
+                background: "linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.35))",
+              }}
+            >
               {result.phish_prob > 0.5 ? (
                 <>
                   <p className="text-2xl font-bold text-red-300 mb-2">
@@ -96,3 +101,23 @@ export default function PhishShield() {
                   <p className="text-sm text-white/90 mb-3">
                     This message shows phishing indicators. Follow these steps to protect yourself:
                   </p>
+                  {getSafetyTips(true)}
+                </>
+              ) : (
+                <>
+                  <p className="text-2xl font-bold text-green-300 mb-2">
+                    ✅ Looks Safe ({((1 - result.phish_prob) * 100).toFixed(1)}%)
+                  </p>
+                  <p className="text-sm text-white/90 mb-3">
+                    No phishing signs detected. Still, keep good security habits:
+                  </p>
+                  {getSafetyTips(false)}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
