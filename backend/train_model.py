@@ -1,52 +1,63 @@
 # backend/train_model.py
-
 import re
+import os
 import joblib
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-# Some example emails
-data = [
-    ("Please verify your account by clicking this link", 1),
-    ("Your invoice is attached", 0),
-    ("Reset your password immediately: http://phish.com", 1),
-    ("Monthly newsletter from your bank", 0),
-    ("Confirm your payment info", 1),
-    ("Meeting tomorrow at 10am", 0)
-]
+# Path to your Kaggle dataset
+CSV_PATH = os.path.join(os.path.dirname(__file__), "phishing_email.csv")
 
-# Split into text and labels
-texts = [d[0] for d in data]
-labels = [d[1] for d in data]
-
-# Clean text (remove extra spaces)
-def clean_text(text):
-    text = text.lower()
-    text = re.sub(r"http\S+", "", text)
-    text = re.sub(r"[^a-z\s]", "", text)
+def clean_text(text: str) -> str:
+    """Basic text cleanup"""
+    text = str(text).lower()
+    text = re.sub(r"http\S+", " url ", text)
+    text = re.sub(r"\d+", " number ", text)
+    text = re.sub(r"[^a-z\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
     return text
 
-texts = [clean_text(t) for t in texts]
+def load_dataset():
+    if not os.path.exists(CSV_PATH):
+        raise FileNotFoundError("❌ Dataset 'emails.csv' not found in backend folder.")
+    
+    df = pd.read_csv(CSV_PATH)
+    if "text_combined" not in df.columns or "label" not in df.columns:
+        raise ValueError("❌ Dataset must have 'text_combined' and 'label' columns.")
 
-# Split data into training and testing
-X_train, X_test, y_train, y_test = train_test_split(texts, labels, test_size=0.3, random_state=42)
+    df = df.dropna(subset=["text_combined", "label"]).copy()
+    df["text_combined"] = df["text_combined"].map(clean_text)
+    df = df[df["text_combined"].str.len() > 3].drop_duplicates(subset=["text_combined"])
+    
+    texts = df["text_combined"].tolist()
+    labels = df["label"].astype(int).tolist()
+    print(f"📊 Loaded {len(df)} samples (phish={sum(labels)}, benign={len(labels)-sum(labels)})")
+    return texts, labels
 
-# Convert text to numeric features (TF-IDF)
-vectorizer = TfidfVectorizer(max_features=1000)
-X_train_tfidf = vectorizer.fit_transform(X_train)
-X_test_tfidf = vectorizer.transform(X_test)
+def main():
+    texts, labels = load_dataset()
 
-# Train a Logistic Regression model
-model = LogisticRegression()
-model.fit(X_train_tfidf, y_train)
+    X_train, X_test, y_train, y_test = train_test_split(
+        texts, labels, test_size=0.2, random_state=42, stratify=labels
+    )
 
-# Evaluate it
-y_pred = model.predict(X_test_tfidf)
-print("Evaluation:")
-print(classification_report(y_test, y_pred))
+    # TF-IDF with unigrams (Step 2 will expand this)
+    vectorizer = TfidfVectorizer(max_features=5000)
+    X_train_tfidf = vectorizer.fit_transform(X_train)
+    X_test_tfidf  = vectorizer.transform(X_test)
 
-# Save the model to a file (model.pkl)
-joblib.dump((vectorizer, model), "model.pkl")
-print("✅ Model saved as model.pkl in the backend folder!")
+    # Logistic Regression baseline
+    model = LogisticRegression(max_iter=1000)
+    model.fit(X_train_tfidf, y_train)
+
+    y_pred = model.predict(X_test_tfidf)
+    print("\n📈 Evaluation:\n", classification_report(y_test, y_pred, digits=4))
+
+    joblib.dump((vectorizer, model), os.path.join(os.path.dirname(__file__), "model.pkl"))
+    print("\n✅ Model saved as backend/model.pkl")
+
+if __name__ == "__main__":
+    main()
