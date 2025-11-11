@@ -61,9 +61,9 @@ export default function PhishShield() {
       <div className="relative z-10 w-full max-w-3xl p-8">
         <div className="bg-white/8 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl">
           <header className="text-center mb-4">
-            <h1 className="text-4xl font-extrabold text-white tracking-wide">PhishShield 🛡️</h1>
+            <h1 className="text-4xl font-extrabold text-white tracking-wide">CaptureThePhish🪝</h1>
             <p className="text-sm text-white/90 mt-2 max-w-2xl mx-auto">
-              Paste email text or a suspicious URL below. PhishShield detects phishing
+              Paste email text or a suspicious URL below. CaptureThePhish detects phishing
               indicators and gives actionable safety tips.
             </p>
           </header>
