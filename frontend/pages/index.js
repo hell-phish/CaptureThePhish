@@ -43,25 +43,15 @@ export default function PhishShield() {
   };
 
   return (
-    // Background container: image + dark overlay for contrast
-    <div className="min-h-screen relative flex items-center justify-center">
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-center bg-cover"
-        style={{ backgroundImage: "url('/attack-verified-gmail.png')" }}
-        aria-hidden="true"
-      />
-      {/* Dark translucent overlay with slight blur for readability */}
-      <div
-        className="absolute inset-0 bg-black/55 backdrop-blur-sm"
-        aria-hidden="true"
-      />
-
+    // 🔳 Background set to black
+    <div className="min-h-screen relative flex items-center justify-center bg-black text-white">
       {/* Main content card */}
       <div className="relative z-10 w-full max-w-3xl p-8">
         <div className="bg-white/8 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl">
           <header className="text-center mb-4">
-            <h1 className="text-4xl font-extrabold text-white tracking-wide">CaptureThePhish🪝</h1>
+            <h1 className="text-4xl font-extrabold text-white tracking-wide">
+              CaptureThePhish 🪝
+            </h1>
             <p className="text-sm text-white/90 mt-2 max-w-2xl mx-auto">
               Paste email text or a suspicious URL below. CaptureThePhish detects phishing
               indicators and gives actionable safety tips.
@@ -90,7 +80,8 @@ export default function PhishShield() {
             <div
               className="mt-6 p-5 rounded-xl shadow-inner"
               style={{
-                background: "linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.35))",
+                background:
+                  "linear-gradient(90deg, rgba(20,20,20,0.8), rgba(40,40,40,0.7))",
               }}
             >
               {result.phish_prob > 0.5 ? (
